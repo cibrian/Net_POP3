@@ -51,9 +51,9 @@ require_once 'Net/Socket.php';
 * For usage see the example script
 */
 
-define('NET_POP3_STATE_DISCONNECTED',  1, true);
-define('NET_POP3_STATE_AUTHORISATION', 2, true);
-define('NET_POP3_STATE_TRANSACTION',   4, true);
+define('NET_POP3_STATE_DISCONNECTED',  1);
+define('NET_POP3_STATE_AUTHORISATION', 2);
+define('NET_POP3_STATE_TRANSACTION',   4);
 
 class Net_POP3
 {
@@ -147,7 +147,7 @@ class Net_POP3
     * the socket object.
     *
     */
-    function Net_POP3()
+    function __construct()
     {
         $this->_timestamp =  ''; // Used for APOP
         $this->_maildrop  =  array();
@@ -287,9 +287,9 @@ class Net_POP3
         }
         $data = preg_split('/\r?\n/', $data, -1, PREG_SPLIT_NO_EMPTY);
 
-        for ($i = 0; $i < count($data); $i++) {
+        for ($i = 0; $i < (is_countable($data) ? count($data) : 0); $i++) {
 
-            list($capa, $arg) = explode(' ', $data[$i], 2);
+            [$capa, $arg] = explode(' ', $data[$i], 2);
 
             if(isset($capa)) {
                 $capa = strtolower($capa);
@@ -299,7 +299,7 @@ class Net_POP3
                     $this->_capability[$capa] = isset($arg) ? explode(' ', $arg) : array();
                         break;
                 default:
-                    $this->_capability[$capa] = isset($arg) ? $arg : 1;
+                    $this->_capability[$capa] = $arg ?? 1;
                 }
             }
         }
@@ -756,7 +756,7 @@ class Net_POP3
             if (isset($this->_maildrop['size'])) {
                 return $this->_maildrop['size'];
             } else {
-                list(, $size) = $this->_cmdStat();
+                [, $size] = $this->_cmdStat();
                 return $size;
             }
         }
@@ -775,7 +775,7 @@ class Net_POP3
             if (isset($this->_maildrop['num_msg'])) {
                 return $this->_maildrop['num_msg'];
             } else {
-                list($num_msg, ) = $this->_cmdStat();
+                [$num_msg, ] = $this->_cmdStat();
                 return $num_msg;
             }
         }
